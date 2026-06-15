@@ -398,15 +398,15 @@
         
         analyser.getByteFrequencyData(dataArray);
         
-        // Calcular promedio de volumen (bajando sensibilidad dividiendo más)
+        // Calcular promedio de volumen
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++) {
             sum += dataArray[i];
         }
         let average = sum / dataArray.length;
         
-        // Mapear a porcentaje (reducimos sensibilidad multiplicando por un factor menor)
-        let intensity = Math.min(100, (average / 255) * 120); 
+        // Mapear a porcentaje (Multiplicador original de 120 ajustado a 132 para un 10% más de sensibilidad)
+        let intensity = Math.min(100, (average / 255) * 132); 
         
         if (intensity > currentMaxIntensity) {
             currentMaxIntensity = intensity;
