@@ -133,6 +133,15 @@
         .btn.action-btn:hover {
             background-color: #122547;
         }
+        
+        .btn.danger-btn {
+            background-color: #dc3545;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn.danger-btn:hover {
+            background-color: #c82333;
+        }
 
         .mic-container {
             width: clamp(90px, 25vmin, 130px);
@@ -291,6 +300,7 @@
             <p>¡Demuestra que tienes los pulmones del capitán! Grita el gol más largo y fuerte para papá.</p>
             <button class="btn" onclick="requestMicAccess()">Jugar ahora</button>
             <button class="btn action-btn" onclick="goToLeaderboardFromIntro()">Ver ranking actual</button>
+            <button class="btn danger-btn" onclick="clearLeaderboard()">Reiniciar ranking</button>
         </div>
     </div>
 
@@ -489,6 +499,13 @@
     function goToLeaderboardFromIntro() {
         loadLeaderboard();
         showScreen('screen-leaderboard');
+    }
+
+    function clearLeaderboard() {
+        if (confirm('¿Estás seguro bro? Esto va a borrar TODOS los puntajes guardados hasta ahora en esta computadora.')) {
+            localStorage.removeItem('mirnaLeaderboard');
+            alert('¡Ranking reiniciado desde cero! Listo para una nueva ronda.');
+        }
     }
 
     function loadLeaderboard() {
