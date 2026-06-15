@@ -283,15 +283,18 @@
 
 <div class="app-container">
 
+    <!-- PANTALLA 1: INICIO -->
     <div id="screen-intro" class="screen active">
         <div class="content-wrapper">
             <h1 style="font-size: clamp(2rem, 6vw, 2.5rem); color: var(--magenta-mirna);">EL GOLÓMETRO</h1>
             <h1 style="font-size: clamp(1.8rem, 5vw, 2.5rem);">DE PAPÁ</h1>
             <p>¡Demuestra que tienes los pulmones del capitán! Grita el gol más largo y fuerte para papá.</p>
             <button class="btn" onclick="requestMicAccess()">Jugar ahora</button>
+            <button class="btn action-btn" onclick="goToLeaderboardFromIntro()">Ver ranking actual</button>
         </div>
     </div>
 
+    <!-- PANTALLA 2: JUEGO -->
     <div id="screen-game" class="screen">
         <div class="content-wrapper">
             <h2>Gritómetro</h2>
@@ -309,10 +312,11 @@
         </div>
     </div>
 
+    <!-- PANTALLA 3: REGISTRO NATIVO -->
     <div id="screen-register" class="screen">
         <div class="content-wrapper">
             <h2>¡Buen grito, crack!</h2>
-            <p>Registra tus datos para guardar tu posición en el ranking de la tienda.</p>
+            <p>Registra tu nombre para guardar tu posición en el ranking de la tienda.</p>
             
             <div class="score-summary">
                 <h3>Tu Récord</h3>
@@ -321,16 +325,14 @@
             </div>
 
             <div class="input-group">
-                <input type="text" id="user-name" placeholder="Nombre y Apellido del Concursante" required>
-            </div>
-            <div class="input-group">
-                <input type="email" id="user-email" placeholder="Correo Electrónico" required>
+                <input type="text" id="user-name" placeholder="Nombre y Apellido" required>
             </div>
             
             <button class="btn" onclick="validateAndGoToForm()">Guardar y Continuar</button>
         </div>
     </div>
 
+    <!-- PANTALLA 4: GOOGLE FORMS DETALLE -->
     <div id="screen-form" class="screen">
         <div class="content-wrapper">
             <h2>¡Último paso!</h2>
@@ -342,15 +344,17 @@
         </div>
     </div>
 
+    <!-- PANTALLA 5: LEADERBOARD -->
     <div id="screen-leaderboard" class="screen">
         <div class="content-wrapper">
             <h2>Ranking Oficial</h2>
             <p>Los mejores puntajes registrados.</p>
             
             <div class="leaderboard-list" id="leaderboard-list">
-                </div>
+                <!-- Inyectado dinámicamente -->
+            </div>
             
-            <button class="btn action-btn" onclick="resetGame()">Jugar de Nuevo</button>
+            <button class="btn action-btn" onclick="resetGame()">Jugar de Nuevo / Volver</button>
         </div>
     </div>
 
@@ -372,13 +376,11 @@
     let currentMaxIntensity = 0;
 
     // Control del Iframe de Google
-    let iframeLoadCount = 0;
     const gFormIframe = document.getElementById('google-form-iframe');
 
-    // Escucha los cambios del iframe para saber cuándo envían el formulario
+    // Escucha el onload del iframe. Si estamos en la pantalla del form cuando carga, es porque lo acaban de enviar.
     gFormIframe.onload = function() {
-        iframeLoadCount++;
-        if (iframeLoadCount > 1) {
+        if (document.getElementById('screen-form').classList.contains('active')) {
             showScreen('screen-leaderboard');
         }
     };
@@ -462,10 +464,9 @@
 
     function validateAndGoToForm() {
         const name = document.getElementById('user-name').value;
-        const email = document.getElementById('user-email').value;
         
-        if (name.trim() === '' || email.trim() === '') {
-            alert('¡Oye bro! Coloca tu nombre y correo para poder guardar tu récord.');
+        if (name.trim() === '') {
+            alert('¡Oye bro! Coloca tu nombre para poder guardar tu récord.');
             return;
         }
 
@@ -482,9 +483,12 @@
         localStorage.setItem('mirnaLeaderboard', JSON.stringify(leaderboard));
         
         loadLeaderboard();
-
-        iframeLoadCount = 0;
         showScreen('screen-form');
+    }
+
+    function goToLeaderboardFromIntro() {
+        loadLeaderboard();
+        showScreen('screen-leaderboard');
     }
 
     function loadLeaderboard() {
@@ -492,7 +496,10 @@
         const listContainer = document.getElementById('leaderboard-list');
         listContainer.innerHTML = '';
 
-        if (leaderboard.length === 0) return;
+        if (leaderboard.length === 0) {
+            listContainer.innerHTML = '<p style="color: #666;">Aún no hay gritos registrados.</p>';
+            return;
+        }
 
         leaderboard.forEach((player, index) => {
             let medal = '';
@@ -516,16 +523,18 @@
     }
 
     function resetGame() {
+        // Limpiamos los campos
         document.getElementById('user-name').value = '';
-        document.getElementById('user-email').value = '';
         document.getElementById('timer-display').textContent = '00.00';
         document.getElementById('meter-bar').style.width = '0%';
         
+        // Primero cambiamos la pantalla a inicio (evita que el onload del iframe dispare el salto)
+        showScreen('screen-intro');
+
+        // Luego recargamos el iframe limpio en segundo plano
         const currentSrc = gFormIframe.src;
         gFormIframe.src = '';
         gFormIframe.src = currentSrc;
-
-        showScreen('screen-intro');
     }
 
 </script>
