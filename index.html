@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El 10 Que Resuelve - Gritómetro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900&display=swap');
+
+        :root {
+            --azul-mirna: #1a3668;
+            --magenta-mirna: #e50064;
+            --blanco: #ffffff;
+            --gris-claro: #f4f4f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--gris-claro);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            background-color: var(--blanco);
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        @media (min-width: 450px) {
+            .app-container {
+                min-height: 700px;
+                border-radius: 20px;
+            }
+        }
+
+        /* Utilidades de Pantallas */
+        .screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 30px;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Tipografía y Botones */
+        h1, h2 {
+            color: var(--azul-mirna);
+            text-transform: uppercase;
+            font-weight: 900;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background-color: var(--magenta-mirna);
+            color: var(--blanco);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, background-color 0.2s;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(229, 0, 100, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background-color: #c40055;
+        }
+
+        .btn.action-btn {
+            background-color: var(--azul-mirna);
+            box-shadow: 0 4px 15px rgba(26, 54, 104, 0.4);
+        }
+
+        .btn.action-btn:hover {
+            background-color: #122547;
+        }
+
+        /* Pantalla 2: Juego */
+        .mic-container {
+            width: 120px;
+            height: 120px;
+            background-color: var(--gris-claro);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 4rem;
+            color: var(--azul-mirna);
+            border: 4px solid var(--magenta-mirna);
+            position: relative;
+        }
+
+        .mic-container.recording {
+            animation: pulse 1s infinite;
+            color: var(--magenta-mirna);
+            border-color: var(--azul-mirna);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 0, 100, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(229, 0, 100, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 0, 100, 0); }
+        }
+
+        .meter-container {
+            width: 100%;
+            height: 30px;
+            background-color: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .meter-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #1a3668 0%, #e50064 100%);
+            transition: width 0.1s ease;
+        }
+
+        .timer {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--azul-mirna);
+            margin-bottom: 30px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Pantalla 3: Formulario */
+        .input-group {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--magenta-mirna);
+        }
+
+        .score-summary {
+            background-color: var(--azul-mirna);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .score-summary h3 {
+            color: var(--magenta-mirna);
+            margin-bottom: 10px;
+        }
+
+        .score-summary p {
+            color: white;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Pantalla 4: Leaderboard */
+        .leaderboard-list {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .leaderboard-item {
+            background-color: var(--gris-claro);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--magenta-mirna);
+            text-align: left;
+        }
+
+        .leaderboard-item .name {
+            font-weight: bold;
+            color: var(--azul-mirna);
+        }
+
+        .leaderboard-item .stats {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- PANTALLA 1: INICIO -->
+    <div id="screen-intro" class="screen active">
+        <h1 style="font-size: 2.5rem; color: var(--magenta-mirna);">EL 10</h1>
+        <h1>QUE RESUELVE</h1>
+        <p>¡Demuestra que tienes los pulmones del capitán! Grita el gol más largo y fuerte para papá.</p>
+        <button class="btn" onclick="requestMicAccess()">Jugar</button>
+    </div>
+
+    <!-- PANTALLA 2: JUEGO -->
+    <div id="screen-game" class="screen">
+        <h2>Gritómetro</h2>
+        <p>Presiona el botón, grita "¡GOOOOOL!" y vuelve a presionar para detener.</p>
+        
+        <div class="mic-container" id="mic-icon">🎤</div>
+        
+        <div class="meter-container">
+            <div class="meter-bar" id="meter-bar"></div>
+        </div>
+        
+        <div class="timer" id="timer-display">00.00</div>
+        
+        <button class="btn action-btn" id="btn-toggle-record" onclick="toggleRecording()">Iniciar Grito</button>
+    </div>
+
+    <!-- PANTALLA 3: RESULTADOS Y REGISTRO -->
+    <div id="screen-result" class="screen">
+        <h2>¡Casi te quedas sin aire!</h2>
+        
+        <div class="score-summary">
+            <h3>Tu Récord</h3>
+            <p>Tiempo: <span id="final-time">00.00</span>s</p>
+            <p>Intensidad Máxima: <span id="final-intensity">0</span>%</p>
+        </div>
+
+        <p>Registra tu puntaje para participar por el premio del 10.</p>
+
+        <div class="input-group">
+            <input type="text" id="user-name" placeholder="Tu Nombre y Apellido" required>
+        </div>
+        <div class="input-group">
+            <input type="email" id="user-email" placeholder="Tu Correo Electrónico" required>
+        </div>
+        
+        <button class="btn" onclick="saveScore()">Guardar y Ver Ranking</button>
+    </div>
+
+    <!-- PANTALLA 4: LEADERBOARD -->
+    <div id="screen-leaderboard" class="screen">
+        <h2>Ranking Oficial</h2>
+        <p>Los mejores gritos de la jornada.</p>
+        
+        <div class="leaderboard-list" id="leaderboard-list">
+            <!-- Lista inyectada por JS -->
+        </div>
+        
+        <button class="btn action-btn" onclick="resetGame()">Jugar de Nuevo</button>
+    </div>
+
+</div>
+
+<script>
+    // Variables de Estado
+    let isRecording = false;
+    let startTime;
+    let timerInterval;
+    let elapsedTime = 0;
+    
+    // Variables de Audio
+    let audioContext;
+    let analyser;
+    let microphone;
+    let dataArray;
+    let animationId;
+    let currentMaxIntensity = 0;
+
+    // Cambiar pantallas
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    // Pedir permisos de micrófono e iniciar
+    async function requestMicAccess() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
+            // Configurar AudioContext
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            
+            microphone = audioContext.createMediaStreamSource(stream);
+            microphone.connect(analyser);
+            
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            showScreen('screen-game');
+        } catch (err) {
+            alert('¡Bro! Necesitamos acceso al micrófono para medir tu grito.');
+            console.error('Error al acceder al micrófono:', err);
+        }
+    }
+
+    // Botón Iniciar/Detener
+    function toggleRecording() {
+        const btn = document.getElementById('btn-toggle-record');
+        const micIcon = document.getElementById('mic-icon');
+        
+        if (!isRecording) {
+            // Empezar a grabar
+            isRecording = true;
+            btn.textContent = "¡Detener Grito!";
+            btn.style.backgroundColor = "var(--magenta-mirna)";
+            micIcon.classList.add('recording');
+            
+            currentMaxIntensity = 0;
+            elapsedTime = 0;
+            startTime = Date.now();
+            
+            timerInterval = setInterval(updateTimer, 10);
+            measureAudio();
+        } else {
+            // Detener grabación
+            isRecording = false;
+            btn.textContent = "Iniciar Grito";
+            btn.style.backgroundColor = "var(--azul-mirna)";
+            micIcon.classList.remove('recording');
+            
+            clearInterval(timerInterval);
+            cancelAnimationFrame(animationId);
+            
+            // Pasar a resultados
+            document.getElementById('final-time').textContent = (elapsedTime / 1000).toFixed(2);
+            document.getElementById('final-intensity').textContent = Math.round(currentMaxIntensity);
+            showScreen('screen-result');
+        }
+    }
+
+    // Cronómetro
+    function updateTimer() {
+        elapsedTime = Date.now() - startTime;
+        let seconds = (elapsedTime / 1000).toFixed(2);
+        // Formato para que siempre tenga 0 a la izquierda si es menor a 10
+        if(seconds < 10) seconds = "0" + seconds;
+        document.getElementById('timer-display').textContent = seconds;
+    }
+
+    // Medir intensidad del micrófono
+    function measureAudio() {
+        if (!isRecording) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        
+        // Calcular promedio de volumen (bajando sensibilidad dividiendo más)
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i];
+        }
+        let average = sum / dataArray.length;
+        
+        // Mapear a porcentaje (reducimos sensibilidad multiplicando por un factor menor)
+        let intensity = Math.min(100, (average / 255) * 120); 
+        
+        if (intensity > currentMaxIntensity) {
+            currentMaxIntensity = intensity;
+        }
+
+        // Actualizar barra UI
+        document.getElementById('meter-bar').style.width = intensity + '%';
+        
+        animationId = requestAnimationFrame(measureAudio);
+    }
+
+    // Guardar Puntaje
+    function saveScore() {
+        const name = document.getElementById('user-name').value;
+        const email = document.getElementById('user-email').value;
+        
+        if (name.trim() === '' || email.trim() === '') {
+            alert('¡Ey bro! Llena tus datos para poder guardar tu puntaje.');
+            return;
+        }
+
+        const scoreData = {
+            name: name,
+            email: email,
+            time: (elapsedTime / 1000).toFixed(2),
+            intensity: Math.round(currentMaxIntensity),
+            date: new Date().getTime()
+        };
+
+        // Guardar en localStorage
+        let leaderboard = JSON.parse(localStorage.getItem('mirnaLeaderboard')) || [];
+        leaderboard.push(scoreData);
+        
+        // Ordenar por tiempo de grito (de mayor a menor)
+        leaderboard.sort((a, b) => b.time - a.time);
+        
+        localStorage.setItem('mirnaLeaderboard', JSON.stringify(leaderboard));
+        
+        loadLeaderboard();
+        showScreen('screen-leaderboard');
+    }
+
+    // Cargar y mostrar Leaderboard
+    function loadLeaderboard() {
+        const leaderboard = JSON.parse(localStorage.getItem('mirnaLeaderboard')) || [];
+        const listContainer = document.getElementById('leaderboard-list');
+        listContainer.innerHTML = '';
+
+        if (leaderboard.length === 0) {
+            listContainer.innerHTML = '<p>Aún no hay gritos registrados. ¡Sé el primero!</p>';
+            return;
+        }
+
+        leaderboard.forEach((player, index) => {
+            // Mostrar un trofeo al top 3
+            let medal = '';
+            if(index === 0) medal = '🥇';
+            if(index === 1) medal = '🥈';
+            if(index === 2) medal = '🥉';
+
+            const item = document.createElement('div');
+            item.className = 'leaderboard-item';
+            item.innerHTML = `
+                <div>
+                    <div class="name">${medal} ${index + 1}. ${player.name}</div>
+                    <div class="stats">Intensidad: ${player.intensity}%</div>
+                </div>
+                <div style="font-weight: 900; color: var(--magenta-mirna); font-size: 1.2rem;">
+                    ${player.time}s
+                </div>
+            `;
+            listContainer.appendChild(item);
+        });
+    }
+
+    // Reiniciar para el siguiente jugador
+    function resetGame() {
+        document.getElementById('user-name').value = '';
+        document.getElementById('user-email').value = '';
+        document.getElementById('timer-display').textContent = '00.00';
+        document.getElementById('meter-bar').style.width = '0%';
+        showScreen('screen-intro');
+    }
+
+</script>
+</body>
+</html>
