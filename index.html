@@ -337,7 +337,7 @@
             <p>Completa estos campos adicionales en el formulario para validar tu participación.</p>
 
             <div class="gform-container">
-                <iframe id="google-form-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSfD_YOUR_FORM_ID_HERE/viewform?embedded=true">Cargando…</iframe>
+                <iframe id="google-form-iframe" src="https://docs.google.com/forms/d/e/1FAIpQLSdAD4ZJgIpYQg-LNofsJPa5afzcUstkyQwUgK1uxlsEFYU0RQ/viewform?embedded=true">Cargando…</iframe>
             </div>
         </div>
     </div>
@@ -378,7 +378,6 @@
     // Escucha los cambios del iframe para saber cuándo envían el formulario
     gFormIframe.onload = function() {
         iframeLoadCount++;
-        // La carga 1 es cuando se muestra la pantalla del formulario. La carga 2 es cuando el usuario presiona "Enviar".
         if (iframeLoadCount > 1) {
             showScreen('screen-leaderboard');
         }
@@ -461,7 +460,6 @@
         animationId = requestAnimationFrame(measureAudio);
     }
 
-    // Guarda los datos nativos locales y cambia al formulario
     function validateAndGoToForm() {
         const name = document.getElementById('user-name').value;
         const email = document.getElementById('user-email').value;
@@ -471,7 +469,6 @@
             return;
         }
 
-        // Estructurar el récord con el NOMBRE REAL capturado
         const scoreData = {
             name: name,
             time: (elapsedTime / 1000).toFixed(2),
@@ -479,16 +476,13 @@
             date: new Date().getTime()
         };
 
-        // Guardar en el ranking local inmediatamente
         let leaderboard = JSON.parse(localStorage.getItem('mirnaLeaderboard')) || [];
         leaderboard.push(scoreData);
         leaderboard.sort((a, b) => b.time - a.time);
         localStorage.setItem('mirnaLeaderboard', JSON.stringify(leaderboard));
         
-        // Cargar la lista para cuando toque mostrarla
         loadLeaderboard();
 
-        // Reiniciar contador del iframe y activar la pantalla del Google Forms
         iframeLoadCount = 0;
         showScreen('screen-form');
     }
@@ -527,7 +521,6 @@
         document.getElementById('timer-display').textContent = '00.00';
         document.getElementById('meter-bar').style.width = '0%';
         
-        // Recargar el iframe para limpiarlo para la próxima persona
         const currentSrc = gFormIframe.src;
         gFormIframe.src = '';
         gFormIframe.src = currentSrc;
